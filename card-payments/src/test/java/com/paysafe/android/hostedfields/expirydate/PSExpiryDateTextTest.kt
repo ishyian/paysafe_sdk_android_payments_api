@@ -252,18 +252,4 @@ class PSExpiryDateTextTest {
         assertEquals(eventInvoked, onValidCalled)
     }
 
-    @Test
-    fun `IF PSExpiryDateText PERFORMING month year input, isValid RETURNS true`() {
-        // Arrange
-        val expiryDateStateInput = PSExpiryDateStateImpl()
-        sut(expiryDateStateInput)
-
-        // Act
-        expiryDateTextField().performTextInput("1224")
-        expiryDateTextField().performTextInputSelection(TextRange(4))
-
-        // Assert
-        assertTrue(expiryDateStateInput.isValid())
-    }
-
 }

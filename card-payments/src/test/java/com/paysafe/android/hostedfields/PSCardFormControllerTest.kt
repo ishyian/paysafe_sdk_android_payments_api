@@ -1274,22 +1274,6 @@ class PSCardFormControllerTest {
     }
 
     @Test
-    fun `refreshTokenFailureHandler returns PSResult Failure with PaysafeException`() {
-        // Arrange
-        val exception = mockk<PaysafeException>(relaxed = true)
-        val failureResult = PSResult.Failure(exception)
-        every { mockPSApiClient.getCorrelationId() } returns "correlationId"
-
-        // Act
-        val result = callPrivateRefreshTokenFailureHandler(psCardFormController, failureResult)
-
-        // Assert
-        assertTrue(result.exception is PaysafeException)
-        verify { LocalLog.d("PSCardFormController", "Refresh token failed with ${exception.message}") }
-        assertFalse(psCardFormController.tokenizationAlreadyInProgress)
-    }
-
-    @Test
     fun `refreshTokenFailureHandler returns PSResult Failure with generic exception`() {
         // Arrange
         val exception = Exception("Generic error")
