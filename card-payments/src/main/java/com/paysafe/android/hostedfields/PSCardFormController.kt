@@ -322,11 +322,46 @@ class PSCardFormController internal constructor(
             }
             tokenizationAlreadyInProgress = true
 
-            validateUsesSupportedCreditCard(getCardBrand(), supportedCardTypes)
+            //validateUsesSupportedCreditCard(getCardBrand(), supportedCardTypes)
 
             val tokenizeResult = tokenizationService.tokenize(
                 paymentHandleRequest = paymentHandleRequest,
                 cardRequest = getCardRequestData()
+            )
+
+            processTokenizeResult(tokenizeResult, paymentHandleRequest, paymentHandleRequestWithRenderType, activity)
+        } catch (psException: PaysafeException) {
+            PSResult.Failure(psException)
+        } catch (exception: Exception) {
+            PSResult.Failure(exception)
+        } finally {
+            tokenizationAlreadyInProgress = false
+            withContext(coroutineContext + Dispatchers.Main) {
+                resetFields()
+            }
+        }
+    }
+
+    @JvmSynthetic
+    suspend fun tokenizeWithCardRequestData(
+        cardTokenizeOptions: PSCardTokenizeOptions,
+        cardRequestData: CardRequest
+    ): PSResult<String> {
+        return try {
+            val paymentHandleRequestWithRenderType = cardTokenizeOptions.toPaymentHandleRequestWithRenderType()
+            val paymentHandleRequest = cardTokenizeOptions.toPaymentHandleRequest()
+            val activity = getContext().getActivity()
+
+            if (tokenizationAlreadyInProgress) {
+                return handleTokenizationInProgressError()
+            }
+            tokenizationAlreadyInProgress = true
+
+            validateUsesSupportedCreditCard(getCardBrand(), supportedCardTypes)
+
+            val tokenizeResult = tokenizationService.tokenize(
+                paymentHandleRequest = paymentHandleRequest,
+                cardRequest = cardRequestData
             )
 
             processTokenizeResult(tokenizeResult, paymentHandleRequest, paymentHandleRequestWithRenderType, activity)
